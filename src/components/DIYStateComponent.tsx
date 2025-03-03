@@ -5,8 +5,14 @@ import { atom, useAtom, useAtomValue } from "../store/diy-jotai-store";
 
 const countAtom = atom(10000);
 const otherCountAtom = atom(20000);
+const totalAtom = atom((get) => get(countAtom) + get(otherCountAtom));
 
-const total = atom((get) => get(countAtom) + get(otherCountAtom));
+const dataAtom = atom(async () => {
+  const res = await fetch("/data.json");
+  return res.json();
+});
+
+const keysAtom = atom((get) => Object.keys(get(dataAtom) ?? {}));
 
 const NumberDisplay = () => {
   const count = useAtomValue(countAtom);
@@ -17,7 +23,7 @@ const NumberDisplay = () => {
       <br />
       <span>Other Count: {otherCount}</span>
       <br />
-      <span>Total: {useAtomValue(total)}</span>
+      <span>Total: {useAtomValue(totalAtom)}</span>
     </>
   );
 };
@@ -26,7 +32,8 @@ export function DIYStateComponent() {
   // const [count, setCount] = useAtom(countAtom);
   const [count, setCount] = useAtom(countAtom);
   const [otherCount, setOtherCount] = useAtom(otherCountAtom);
-
+  const data = useAtomValue(dataAtom);
+  const keys = useAtomValue(keysAtom);
   return (
     <>
       <div>
@@ -38,6 +45,9 @@ export function DIYStateComponent() {
         </a>
       </div>
       <h1>Vite + React</h1>
+      <div>{JSON.stringify(data, null, 2)}</div>
+      <br />
+      <div>{JSON.stringify(keys, null, 2)}</div>
       <NumberDisplay />
       <hr />
       <label htmlFor="number">Set count:</label>
@@ -61,6 +71,7 @@ export function DIYStateComponent() {
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
+
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
